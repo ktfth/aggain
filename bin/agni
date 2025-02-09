@@ -1,197 +1,50 @@
 #!/usr/bin/env node
-var sudoBlock = require('sudo-block')('You not be able to perform this tool as root.');
-var agni = require('../');
-var agniCli = require('commander');
-var chalk = require('chalk');
-var pkg = require('../package');
-var fs = require('fs');
-var path = require('path');
-var ctx = {};
-var bannerLocation = path.resolve(__dirname, 'banner.txt');
-var bannerData = fs.readFileSync(bannerLocation, 'utf-8');
 
-agniCli
+import { dirname, resolve } from 'path';
+
+import { Command } from 'commander';
+import chalk from 'chalk';
+import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
+import { readFileSync } from 'fs';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const pkg = require('../package.json');
+const bannerLocation = resolve(__dirname, 'banner.txt');
+const bannerData = readFileSync(bannerLocation, 'utf-8');
+
+const program = new Command();
+
+program
   .version(pkg.version)
-  .option('-u, --up', 'Fire up the agni engine, in a existing structure.')
-  .option('-s, --start [name]', 'Start up the agni engine, for the first time.')
-  .option('-m, --module [name]', 'Create an module file.')
-  .option('-d, --middleware [name]', 'Create an express middleware file or works with route command to address existing middlewares to and route.')
-  .option('-l, --model [name]', 'Create a model file to work with schema, modules or plugins.')
-  .option('-p, --plugin [name]', 'Create a plugin file to work with model.')
-  .option('-c, --controller [name]', 'Create a controller or work with route to address and existing controller.')
-  .option('-f, --configuration [name]', 'Create a configuration file.')
-  .option('-t, --test [name]', 'Create a test file.')
-  .option('-j, --job [name]', 'Create a job process.')
-  .option('-r, --route [name]', 'Create a route.')
-  .option('-a, --app [name]', 'Create an app.')
-  .option('-b, --bin [name]', 'Create an executable file.')
-  //.option('-d, --doc [name]', 'Create an doc file.')
-  //.option('-v, --view [name]', 'Create a view or work with route command to address to a controller rendering trigger.')
+  .description('Gerador moderno de BFF com suporte para Express e Koa')
+  .argument('<project-name>', 'Nome do projeto')
+  .option('-f, --framework <framework>', 'Framework a ser usado (express|koa)', 'express')
+  .option('-p, --port <port>', 'Porta do servidor', '3000')
+  .option('-d, --database <database>', 'Tipo de banco de dados (mongodb|postgresql|mysql)')
+  .option('--typescript', 'Usar TypeScript', true)
+  .option('--tests', 'Incluir testes', true)
+  .option('--docker', 'Incluir Dockerfile', false)
   .parse(process.argv);
 
-if (!process.argv.slice(2).length) {
-  bannerHandler();
-  agniCli.help();
-}
+const options = program.opts();
+const [projectName] = program.args;
 
-function bannerHandler() {
+if (!process.argv.slice(2).length) {
   console.log();
   console.log(chalk.yellow(bannerData));
   console.log();
+  program.help();
 }
 
-function initHandler(err) {
-  var self = this;
-
-  if (err) {
-    console.log(err);
-  } else if (self.type === 'up') {
-    console.log('Fire up this application!');
-  } else if (self.type === 'start') {
-    console.log('Application ' + self.name + ' was created!');
-  }
-}
-
-function createHandler(err, timestamp) {
-  var self = this;
-
-  if (err) {
-    console.log(err);
-  } else {
-    console.log(chalk.green('[ ' + timestamp + ' ]') + ' - ' + self.type + ' ' + self.name + ' was created!'); 
-  }
-}
-
-function errorHandler(msg) {
-  console.log(msg);
-  process.exit(1);
-}
-
-function upHandler() {
-  if (agniCli.up && !agni.hasDotAgni(process.cwd())) {
-    ctx = { type: 'up' };
-    agni.up(process.cwd(), initHandler.bind(ctx));
-  }
-}
-
-function startHandler() {
-  if ((typeof agniCli.start === 'string') && !agni.hasDotAgni(process.cwd())) {
-    ctx = { name: agniCli.start || agniCli.s, type: 'start' };
-    agni.start(process.cwd(), ctx.name, initHandler.bind(ctx));
-  } else if (agniCli.start && !(typeof agniCli.start === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('application') + ' when you try to start one. Try: ' + chalk.green('\`agni-gen --start [name]\`'));
-  }
-}
-
-function moduleHandler() {
-  if ((typeof agniCli.module === 'string') && agni.hasDotAgni(process.cwd())) {
-    ctx = { name: (agniCli.module), type: 'module' };
-    agni.createModule(process.cwd(), ctx.name, createHandler.bind(ctx));
-  } else if (agniCli.module && !(typeof agniCli.module === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('module') + ' when you try to create one. Try: ' + chalk.green('\`agni-gen --module [name]\`'));
-  }
-}
-
-function middlewareHandler() { 
-  if ((typeof agniCli.middleware === 'string') && agni.hasDotAgni(process.cwd())) {
-    ctx = { name: (agniCli.middleware), type: 'middleware' };
-    agni.createMiddleware(process.cwd(), ctx.name, createHandler.bind(ctx));
-  } else if (agniCli.middleware && !(typeof agniCli.middleware === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('middleware') + ' when you try to create one. Try: ' + chalk.green('\`agni-gen --middleware [name]\`'));
-  }
-}
-
-function modelHandler() {
-  if ((typeof agniCli.model === 'string') && agni.hasDotAgni(process.cwd())) {
-    ctx = { name: (agniCli.model), type: 'model' };
-    agni.createModel(process.cwd(), ctx.name, createHandler.bind(ctx));
-  } else if (agniCli.model && !(typeof agniCli.model === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('model') + ' when you try to create one. Try: ' + chalk.green('\`agni-gen --model [name]\`'));
-  }
-}
-
-function pluginHandler() {
-  if ((typeof agniCli.plugin === 'string') && agni.hasDotAgni(process.cwd())) {
-    ctx = { name: (agniCli.plugin), type: 'plugin' };
-    agni.createPlugin(process.cwd(), ctx.name, createHandler.bind(ctx));
-  } else if (agniCli.plugin && !(typeof agniCli.plugin === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('plugin') + ' when you try to create one. Try: ' + chalk.green('\`agni-gen --plugin [name]\`'));
-  }
-}
-
-function controllerHandler() {
-  if ((typeof agniCli.controller === 'string') && agni.hasDotAgni(process.cwd())) {
-    ctx = { name: (agniCli.controller), type: 'controller' };
-    agni.createController(process.cwd(), ctx.name, createHandler.bind(ctx));
-  } else if (agniCli.controller && !(typeof agniCli.controller === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('controller') + ' when you try to create one. Try: ' + chalk.green('\`agni-gen --controller [name]\`'));
-  }
-}
-
-function configurationHandler() {
-  if ((typeof agniCli.configuration === 'string') && agni.hasDotAgni(process.cwd())) {
-    ctx = { name: (agniCli.configuration), type: 'config' };
-    agni.createConfig(process.cwd(), ctx.name, createHandler.bind(ctx));
-  } else if (agniCli.configuration && !(typeof agniCli.configuration === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('configuration') + ' when you try to create one. Try: ' + chalk.green('\`agni-gen --configuration [name]\`'));
-  }
-}
-
-function testHandler() {
-  if ((typeof agniCli.test === 'string') && agni.hasDotAgni(process.cwd())) {
-    ctx = { name: (agniCli.test), type: 'test' };
-    agni.createTest(process.cwd(), ctx.name, createHandler.bind(ctx));
-  } else if (agniCli.test && !(typeof agniCli.test === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('test') + ' when you try to create one. Try: ' + chalk.green('\`agni-gen --test [name]\`'));
-  }
-}
-
-function jobHandler() {
-  if ((typeof agniCli.job === 'string') && agni.hasDotAgni(process.cwd())) {
-    ctx = { name: (agniCli.job), type: 'job' };
-    agni.createJobProcess(process.cwd(), ctx.name, createHandler.bind(ctx));
-  } else if (agniCli.job && !(typeof agniCli.job === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('job') + ' when you try to create one. Try: ' + chalk.green('\`agni-gen --job [name]\`'));
-  }
-}
-
-function routeHandler() {
-  if ((typeof agniCli.route === 'string') && agni.hasDotAgni(process.cwd())) {
-    ctx = { name: (agniCli.route), type: 'route' };
-    agni.createRoute(process.cwd(), ctx.name, createHandler.bind(ctx));
-  } else if (agniCli.route && !(typeof agniCli.route === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('route') + ' when you try to create one. Try: ' + chalk.green('\`agni-gen --route [name]\`'));
-  }
-}
-
-function appHandler() {
-  if ((typeof agniCli.app === 'string') && agni.hasDotAgni(process.cwd())) {
-    ctx = { name: (agniCli.app), type: 'app' };
-    agni.createApp(process.cwd(), ctx.name, createHandler.bind(ctx));
-  } else if (agniCli.app && !(typeof agniCli.app === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('model') + ' when you try to create one. Try: ' + chalk.green('\`agni-gen --app [name]\`'));
-  }
-}
-
-function binHandler() {
-  if ((typeof agniCli.bin === 'string') && agni.hasDotAgni(process.cwd())) {
-    ctx = { name: (agniCli.bin), type: 'bin' };
-    agni.createBin(process.cwd(), ctx.name, createHandler.bind(ctx));
-  } else if (agniCli.bin && !(typeof agniCli.bin === 'string')) {
-    errorHandler('You need to pass the name of the ' + chalk.red('model') + ' when you try to create one. Try: ' + chalk.green('\`agni-gen --bin [name]\`'));
-  }
-}
-
-upHandler();
-startHandler();
-moduleHandler();
-middlewareHandler();
-modelHandler();
-pluginHandler();
-controllerHandler();
-configurationHandler();
-testHandler();
-jobHandler();
-routeHandler();
-appHandler();
-binHandler();
+import('../dist/index.js')
+  .then(module => {
+    module.default(projectName, options);
+  })
+  .catch(err => {
+    console.error('Erro ao executar o comando:', err);
+    process.exit(1);
+  });

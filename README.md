@@ -1,115 +1,77 @@
-# Aggain
+# create-aggain
 
-[![Build Status](https://travis-ci.org/kaiquewdev/agni-gen.svg?branch=master)](https://travis-ci.org/kaiquewdev/aggain)
+Um gerador moderno de BFF (Backend for Frontend) com suporte para Express e Koa.
 
-## Purpose
+## Características
 
-Maybe you have the same problem, over and over to create a solid base for your applications,
-with simple principles and agile to define and setup your flow and start to develop. Here we are,
-at the same way, maybe you know how to deal with well, but organize all that things has a high consumption of time and energy.
-Let's start talk about to create something amazing and simple to deal with.
+- ✨ Suporte para Express e Koa
+- 🚀 TypeScript por padrão
+- 📦 Estrutura moderna de projeto
+- 🧪 Testes automatizados
+- 🐳 Suporte a Docker
+- 🔒 Configurações de segurança
+- 📝 Validação de dados
+- 🎯 Foco em BFF
 
-## Installation
+## Requisitos
 
-  ```
-  [sudo] npm i -g aggain
-  ```
+- Node.js >= 18.0.0
+- npm >= 7.0.0
 
-### Usage screencast in pt_BR
+## Uso
 
-[Screencast #1](http://youtu.be/U0BKa_ocKvI)
+```bash
+# Usando npx (recomendado)
+npx create-aggain my-bff -- -f express -p 3000 --typescript --tests
 
-### Usage
+# Ou instalando globalmente
+npm install -g create-aggain
+create-aggain my-bff -- -f koa -p 3000 --typescript --tests
+```
 
-[Usage](http://showterm.io/dbe04c65f296534bc4318)
+## Opções
 
-## Starting a clean agni project or seed the flame
+- `-f, --framework <framework>` - Framework a ser usado (express|koa)
+- `-p, --port <port>` - Porta do servidor (padrão: 3000)
+- `-d, --database <database>` - Banco de dados (mongodb|postgresql|mysql)
+- `--typescript` - Usar TypeScript (padrão: true)
+- `--tests` - Incluir testes (padrão: true)
+- `--docker` - Incluir Dockerfile (padrão: false)
 
-  Fire up the engine on a living project.
+## Estrutura do Projeto
 
-  ```
-  [sudo] aggain --up
-  ```
+```
+my-bff/
+├── src/
+│   ├── controllers/
+│   ├── routes/
+│   ├── middlewares/
+│   ├── services/
+│   ├── utils/
+│   └── index.ts
+├── tests/
+├── Dockerfile
+├── package.json
+└── tsconfig.json
+```
 
-  Start up an structure from the ground with the engine.
+## Scripts Disponíveis
 
-  ```
-  [sudo] aggain --start [name]
-  ```
+- `npm run dev` - Inicia o servidor em modo desenvolvimento
+- `npm run build` - Compila o projeto
+- `npm start` - Inicia o servidor em produção
+- `npm test` - Executa os testes
+- `npm run lint` - Executa o linter
+- `npm run format` - Formata o código
 
-## Structure
+## Contribuindo
 
-Each part was a functional component of the application, but each one of them has a organic and co-operative task.
+1. Fork o projeto
+2. Crie sua branch de feature (`git checkout -b feature/MinhaFeature`)
+3. Commit suas mudanças (`git commit -am 'Adiciona alguma feature'`)
+4. Push para a branch (`git push origin feature/MinhaFeature`)
+5. Crie um Pull Request
 
-### Bin 
+## Licença
 
-  ```
-  [sudo] aggain --bin [name] 
-  ```
-
-### App 
-
-  ```
-  [sudo] aggain --app [name] 
-  ```
-
-### Route 
-
-  ```
-  [sudo] aggain --route [name] 
-  ```
-
-### Modules
-
-  ```
-  [sudo] aggain --module [name] 
-  ```
-
-### Middlewares
-
-  ```
-  [sudo] aggain --middleware [name]
-  ```
-
-### Models
-
-  ```
-  [sudo] aggain --model [name]
-  ```
-
-### Plugins
-
-  ```
-  [sudo] aggain --plugin [name]
-  ```
-
-### Controllers
-
-  ```
-  [sudo] aggain --controller [name]
-  ```
-
-### Config
-
-  ```
-  [sudo] aggain --configuration [name]
-  ```
-
-### Test 
-
-  ```
-  [sudo] aggain --test [name]
-  ```
-
-### Job 
-
-  ```
-  [sudo] aggain --job [name]
-  ```
-
-## Contribute
-
-  Install local and start hacking, so then give your opinion on github issues.
-  After that improve some features on the project.
-
-Thank you and wait for more great thing of this project.
+ISC
