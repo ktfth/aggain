@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AuthOptions } from '../templates/auth.js';
 
 const projectNameSchema = z
   .string()
@@ -81,9 +82,9 @@ const authOptionsSchema = z.object({
 export function validateAuthOptions(options: {
   authType: 'jwt' | 'session';
   userFields?: z.infer<typeof userFieldSchema>[];
-}): { authType: 'jwt' | 'session'; userFields?: z.infer<typeof userFieldSchema>[] } {
+}): AuthOptions {
   try {
-    return authOptionsSchema.parse(options);
+    return authOptionsSchema.parse(options) as AuthOptions;
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error(`Erro de validação: ${error.errors[0].message}`);
