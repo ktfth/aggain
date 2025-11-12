@@ -1,12 +1,40 @@
 import { generateExpressController, generateExpressRoutes, generateKoaController, generateKoaRoutes, generateModel } from '../templates/crud.js';
-import { mkdir, writeFile } from 'fs/promises';
-import { existsSync } from 'fs';
+import { mkdir, writeFile, readFile, access } from 'fs/promises';
+import { existsSync, constants } from 'fs';
 import { logger } from '../utils/logger.js';
 import path from 'path';
+/**
+ * Detecta se o projeto está usando TypeScript
+ */
+async function detectTypeScript(projectPath) {
+    try {
+        // Verifica se existe tsconfig.json
+        const tsconfigPath = path.join(projectPath, 'tsconfig.json');
+        try {
+            await access(tsconfigPath, constants.F_OK);
+            return true;
+        }
+        catch { }
+        // Verifica se TypeScript está nas dependências
+        const packageJsonPath = path.join(projectPath, 'package.json');
+        const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf-8'));
+        if (packageJson.dependencies?.typescript || packageJson.devDependencies?.typescript) {
+            return true;
+        }
+        return false;
+    }
+    catch {
+        return false;
+    }
+}
 export async function generateCrud(options, framework, projectPath) {
     const { entityName } = options;
     try {
         logger.info(`Iniciando geração do CRUD para a entidade: ${entityName}`);
+        // Detectar TypeScript
+        const isTypeScript = await detectTypeScript(projectPath);
+        const fileExtension = isTypeScript ? 'ts' : 'js';
+        logger.info(`Detectado: ${isTypeScript ? 'TypeScript' : 'JavaScript'} - usando extensão .${fileExtension}`);
         // Verificar se os diretórios base existem
         const srcPath = path.join(projectPath, 'src');
         const modelsPath = path.join(srcPath, 'models');
@@ -24,9 +52,9 @@ export async function generateCrud(options, framework, projectPath) {
         await mkdir(routesPath, { recursive: true });
         // Verificar se os arquivos já existem
         logger.info(`Verificando se os arquivos já existem para a entidade: ${entityName}`);
-        const modelFile = path.join(modelsPath, `${entityName}.model.ts`);
-        const controllerFile = path.join(controllersPath, `${entityName}.controller.ts`);
-        const routesFile = path.join(routesPath, `${entityName}.routes.ts`);
+        const modelFile = path.join(modelsPath, `${entityName}.model.${fileExtension}`);
+        const controllerFile = path.join(controllersPath, `${entityName}.controller.${fileExtension}`);
+        const routesFile = path.join(routesPath, `${entityName}.routes.${fileExtension}`);
         if (existsSync(modelFile) || existsSync(controllerFile) || existsSync(routesFile)) {
             logger.error(`Arquivos para a entidade ${entityName} já existem. Escolha outro nome ou remova os arquivos existentes.`);
             throw new Error(`Arquivos para a entidade ${entityName} já existem. Escolha outro nome ou remova os arquivos existentes.`);

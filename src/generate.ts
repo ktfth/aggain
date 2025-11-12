@@ -29,6 +29,32 @@ async function detectFramework(projectPath: string): Promise<'express' | 'koa' |
 }
 
 /**
+ * Detecta se o projeto está usando TypeScript
+ */
+async function detectTypeScript(projectPath: string): Promise<boolean> {
+  try {
+    // Verifica se existe tsconfig.json
+    const tsconfigPath = path.join(projectPath, 'tsconfig.json');
+    try {
+      await access(tsconfigPath, constants.F_OK);
+      return true;
+    } catch {}
+
+    // Verifica se TypeScript está nas dependências
+    const packageJsonPath = path.join(projectPath, 'package.json');
+    const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf-8'));
+
+    if (packageJson.dependencies?.typescript || packageJson.devDependencies?.typescript) {
+      return true;
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Verifica se o diretório é um projeto aggain
  */
 async function isAggainProject(projectPath: string): Promise<boolean> {
@@ -75,14 +101,15 @@ function toKebabCase(str: string): string {
 
 // ==================== TEMPLATES ====================
 
-function generateRouteTemplate(name: string, framework: 'express' | 'koa'): string {
+function generateRouteTemplate(name: string, framework: 'express' | 'koa', useJsExtension: boolean = true): string {
   const pascalName = toPascalCase(name);
   const camelName = toCamelCase(name);
   const kebabName = toKebabCase(name);
+  const ext = useJsExtension ? '.js' : '';
 
   if (framework === 'express') {
     return `import { Router } from 'express';
-import { ${camelName}Controller } from '../controllers/${kebabName}.controller.js';
+import { ${camelName}Controller } from '../controllers/${kebabName}.controller${ext}';
 
 const router = Router();
 
@@ -181,7 +208,7 @@ export default router;
   } else {
     // Koa
     return `import Router from '@koa/router';
-import { ${camelName}Controller } from '../controllers/${kebabName}.controller.js';
+import { ${camelName}Controller } from '../controllers/${kebabName}.controller${ext}';
 
 const router = new Router({
   prefix: '/api/${kebabName}'
@@ -198,15 +225,16 @@ export default router;
   }
 }
 
-function generateControllerTemplate(name: string, framework: 'express' | 'koa'): string {
+function generateControllerTemplate(name: string, framework: 'express' | 'koa', useJsExtension: boolean = true): string {
   const pascalName = toPascalCase(name);
   const camelName = toCamelCase(name);
   const kebabName = toKebabCase(name);
+  const ext = useJsExtension ? '.js' : '';
 
   if (framework === 'express') {
     return `import { Request, Response, NextFunction } from 'express';
-import { ${camelName}Service } from '../services/${kebabName}.service.js';
-import { AppError } from '../utils/errors.js';
+import { ${camelName}Service } from '../services/${kebabName}.service${ext}';
+import { AppError } from '../utils/errors${ext}';
 
 class ${pascalName}Controller {
   async getAll(req: Request, res: Response, next: NextFunction) {
@@ -292,7 +320,7 @@ export const ${camelName}Controller = new ${pascalName}Controller();
   } else {
     // Koa
     return `import { Context } from 'koa';
-import { ${camelName}Service } from '../services/${kebabName}.service.js';
+import { ${camelName}Service } from '../services/${kebabName}.service${ext}';
 
 class ${pascalName}Controller {
   async getAll(ctx: Context) {
@@ -369,12 +397,13 @@ export const ${camelName}Controller = new ${pascalName}Controller();
   }
 }
 
-function generateServiceTemplate(name: string): string {
+function generateServiceTemplate(name: string, useJsExtension: boolean = true): string {
   const pascalName = toPascalCase(name);
   const camelName = toCamelCase(name);
   const kebabName = toKebabCase(name);
+  const ext = useJsExtension ? '.js' : '';
 
-  return `import { ${pascalName} } from '../models/${kebabName}.model.js';
+  return `import { ${pascalName} } from '../models/${kebabName}.model${ext}';
 
 class ${pascalName}Service {
   async findAll() {
@@ -422,13 +451,14 @@ function generateModelTemplate(name: string): string {
 `;
 }
 
-function generateMiddlewareTemplate(name: string, framework: 'express' | 'koa'): string {
+function generateMiddlewareTemplate(name: string, framework: 'express' | 'koa', useJsExtension: boolean = true): string {
   const pascalName = toPascalCase(name);
   const camelName = toCamelCase(name);
+  const ext = useJsExtension ? '.js' : '';
 
   if (framework === 'express') {
     return `import { Request, Response, NextFunction } from 'express';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger${ext}';
 
 export async function ${camelName}(req: Request, res: Response, next: NextFunction) {
   try {
@@ -442,7 +472,7 @@ export async function ${camelName}(req: Request, res: Response, next: NextFuncti
 `;
   } else {
     return `import { Context, Next } from 'koa';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger${ext}';
 
 export async function ${camelName}(ctx: Context, next: Next) {
   logger.info('Middleware ${pascalName} executado');
@@ -513,26 +543,33 @@ export async function generateResource(options: GenerateOptions): Promise<void> 
     logger.warn(chalk.yellow('⚠️  Não foi possível detectar o framework. Usando Express como padrão.'));
   }
 
+  // Detectar TypeScript
+  const isTypeScript = await detectTypeScript(projectPath);
+  const fileExtension = isTypeScript ? 'ts' : 'js';
+
   const name = options.name;
   const kebabName = toKebabCase(name);
   const pascalName = toPascalCase(name);
 
-  logger.info(chalk.blue(`🚀 Gerando ${options.type}: ${name}`));
+  logger.info(chalk.blue(`🚀 Gerando ${options.type}: ${name} (${isTypeScript ? 'TypeScript' : 'JavaScript'})`));
+  logger.info(chalk.blue(`📝 Usando extensão: .${fileExtension}`));
 
   try {
     const srcPath = path.join(projectPath, 'src');
+
+    const useJsExtension = !isTypeScript;
 
     switch (options.type) {
       case 'route': {
         const routesDir = path.join(srcPath, 'routes');
         await mkdir(routesDir, { recursive: true });
 
-        const routeFile = path.join(routesDir, `${kebabName}.routes.ts`);
-        const content = generateRouteTemplate(name, framework);
+        const routeFile = path.join(routesDir, `${kebabName}.routes.${fileExtension}`);
+        const content = generateRouteTemplate(name, framework, useJsExtension);
         await writeFile(routeFile, content);
 
-        logger.info(chalk.green(`✅ Rota criada: src/routes/${kebabName}.routes.ts`));
-        logger.info(chalk.yellow(`💡 Não esqueça de registrar a rota no arquivo principal (index.ts)`));
+        logger.info(chalk.green(`✅ Rota criada: src/routes/${kebabName}.routes.${fileExtension}`));
+        logger.info(chalk.yellow(`💡 Não esqueça de registrar a rota no arquivo principal (index.${fileExtension})`));
         logger.info(chalk.cyan(`   Adicione: app.use('/api/${kebabName}', ${kebabName}Routes);`));
         break;
       }
@@ -541,11 +578,11 @@ export async function generateResource(options: GenerateOptions): Promise<void> 
         const controllersDir = path.join(srcPath, 'controllers');
         await mkdir(controllersDir, { recursive: true });
 
-        const controllerFile = path.join(controllersDir, `${kebabName}.controller.ts`);
-        const content = generateControllerTemplate(name, framework);
+        const controllerFile = path.join(controllersDir, `${kebabName}.controller.${fileExtension}`);
+        const content = generateControllerTemplate(name, framework, useJsExtension);
         await writeFile(controllerFile, content);
 
-        logger.info(chalk.green(`✅ Controller criado: src/controllers/${kebabName}.controller.ts`));
+        logger.info(chalk.green(`✅ Controller criado: src/controllers/${kebabName}.controller.${fileExtension}`));
         break;
       }
 
@@ -553,11 +590,11 @@ export async function generateResource(options: GenerateOptions): Promise<void> 
         const servicesDir = path.join(srcPath, 'services');
         await mkdir(servicesDir, { recursive: true });
 
-        const serviceFile = path.join(servicesDir, `${kebabName}.service.ts`);
-        const content = generateServiceTemplate(name);
+        const serviceFile = path.join(servicesDir, `${kebabName}.service.${fileExtension}`);
+        const content = generateServiceTemplate(name, useJsExtension);
         await writeFile(serviceFile, content);
 
-        logger.info(chalk.green(`✅ Service criado: src/services/${kebabName}.service.ts`));
+        logger.info(chalk.green(`✅ Service criado: src/services/${kebabName}.service.${fileExtension}`));
         break;
       }
 
@@ -565,11 +602,11 @@ export async function generateResource(options: GenerateOptions): Promise<void> 
         const modelsDir = path.join(srcPath, 'models');
         await mkdir(modelsDir, { recursive: true });
 
-        const modelFile = path.join(modelsDir, `${kebabName}.model.ts`);
+        const modelFile = path.join(modelsDir, `${kebabName}.model.${fileExtension}`);
         const content = generateModelTemplate(name);
         await writeFile(modelFile, content);
 
-        logger.info(chalk.green(`✅ Model criado: src/models/${kebabName}.model.ts`));
+        logger.info(chalk.green(`✅ Model criado: src/models/${kebabName}.model.${fileExtension}`));
         break;
       }
 
@@ -577,11 +614,11 @@ export async function generateResource(options: GenerateOptions): Promise<void> 
         const middlewaresDir = path.join(srcPath, 'middlewares');
         await mkdir(middlewaresDir, { recursive: true });
 
-        const middlewareFile = path.join(middlewaresDir, `${kebabName}.middleware.ts`);
-        const content = generateMiddlewareTemplate(name, framework);
+        const middlewareFile = path.join(middlewaresDir, `${kebabName}.middleware.${fileExtension}`);
+        const content = generateMiddlewareTemplate(name, framework, useJsExtension);
         await writeFile(middlewareFile, content);
 
-        logger.info(chalk.green(`✅ Middleware criado: src/middlewares/${kebabName}.middleware.ts`));
+        logger.info(chalk.green(`✅ Middleware criado: src/middlewares/${kebabName}.middleware.${fileExtension}`));
         break;
       }
 
@@ -589,11 +626,11 @@ export async function generateResource(options: GenerateOptions): Promise<void> 
         const testsDir = path.join(projectPath, 'tests');
         await mkdir(testsDir, { recursive: true });
 
-        const testFile = path.join(testsDir, `${kebabName}.test.ts`);
+        const testFile = path.join(testsDir, `${kebabName}.test.${fileExtension}`);
         const content = generateTestTemplate(name, 'test', framework);
         await writeFile(testFile, content);
 
-        logger.info(chalk.green(`✅ Test criado: tests/${kebabName}.test.ts`));
+        logger.info(chalk.green(`✅ Test criado: tests/${kebabName}.test.${fileExtension}`));
         break;
       }
     }
