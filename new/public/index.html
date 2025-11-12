@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Documentação de Componentes</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">Documentação dos Componentes</h1>
+        
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Componentes Compostos -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-2xl font-semibold mb-6">Componentes Compostos</h2>
+                
+                <div class="space-y-6">
+                    <!-- CRUD -->
+                    <div class="border-b pb-6">
+                        <h3 class="text-xl font-medium text-gray-900 mb-2">CRUD Completo</h3>
+                        <p class="text-gray-600 mb-4">Conjunto completo de operações CRUD (Create, Read, Update, Delete)</p>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-700 mb-2">Estrutura:</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-gray-600">
+                                <li>routes/[nome].ts - Rotas para CRUD</li>
+                                <li>controllers/[nome].ts - Controlador com métodos CRUD</li>
+                                <li>services/[nome].ts - Serviço com operações de banco</li>
+                                <li>models/[nome].ts - Modelo com validação Zod</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-4">
+                            <h4 class="font-medium text-gray-700 mb-2">Como usar:</h4>
+                            <div class="bg-gray-800 rounded-lg p-4">
+                                <code class="text-sm text-gray-200">
+                                    <pre>
+// routes/user.ts
+import { Router } from 'express';
+import { UserController } from '../controllers/user';
+
+const router = Router();
+const controller = new UserController();
+
+router.get('/users', controller.getAll);
+router.post('/users', controller.create);
+router.put('/users/:id', controller.update);
+router.delete('/users/:id', controller.delete);
+
+export const userRouter = router;</pre>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Busca Avançada -->
+                    <div class="border-b pb-6">
+                        <h3 class="text-xl font-medium text-gray-900 mb-2">Busca Avançada</h3>
+                        <p class="text-gray-600 mb-4">Sistema de busca com filtros, paginação e ordenação</p>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-700 mb-2">Estrutura:</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-gray-600">
+                                <li>controllers/search.ts - Controlador de busca</li>
+                                <li>services/search.ts - Serviço com lógica de busca</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-4">
+                            <h4 class="font-medium text-gray-700 mb-2">Como usar:</h4>
+                            <div class="bg-gray-800 rounded-lg p-4">
+                                <code class="text-sm text-gray-200">
+                                    <pre>
+// Exemplo de uso na rota
+router.get('/search', async (req, res) => {
+  const { query, page, limit, sort } = req.query;
+  const results = await searchService.search({
+    query,
+    page: Number(page),
+    limit: Number(limit),
+    sort
+  });
+  res.json(results);
+});</pre>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Autenticação -->
+                    <div class="border-b pb-6">
+                        <h3 class="text-xl font-medium text-gray-900 mb-2">Autenticação</h3>
+                        <p class="text-gray-600 mb-4">Sistema completo de autenticação com JWT</p>
+                        
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-medium text-gray-700 mb-2">Estrutura:</h4>
+                            <ul class="list-disc pl-5 space-y-1 text-gray-600">
+                                <li>middlewares/auth.ts - Middleware de autenticação</li>
+                                <li>services/auth.ts - Serviço de autenticação</li>
+                                <li>models/user.ts - Modelo de usuário</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-4">
+                            <h4 class="font-medium text-gray-700 mb-2">Como usar:</h4>
+                            <div class="bg-gray-800 rounded-lg p-4">
+                                <code class="text-sm text-gray-200">
+                                    <pre>
+// Proteger uma rota
+router.get('/protected',
+  authMiddleware,
+  async (req, res) => {
+    // Rota protegida
+  }
+);</pre>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Componentes Básicos -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-2xl font-semibold mb-6">Componentes Básicos</h2>
+                
+                <div class="space-y-6">
+                    <!-- Rota -->
+                    <div class="border-b pb-6">
+                        <h3 class="text-xl font-medium text-gray-900 mb-2">Rota</h3>
+                        <p class="text-gray-600 mb-4">Define endpoints da API com Express Router</p>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-medium text-gray-700 mb-2">Como usar:</h4>
+                            <div class="bg-gray-800 rounded-lg p-4">
+                                <code class="text-sm text-gray-200">
+                                    <pre>
+// routes/example.ts
+import { Router } from 'express';
+const router = Router();
+
+router.get('/example', handler);
+export const exampleRouter = router;</pre>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controlador -->
+                    <div class="border-b pb-6">
+                        <h3 class="text-xl font-medium text-gray-900 mb-2">Controlador</h3>
+                        <p class="text-gray-600 mb-4">Gerencia a lógica de requisições e respostas</p>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-medium text-gray-700 mb-2">Como usar:</h4>
+                            <div class="bg-gray-800 rounded-lg p-4">
+                                <code class="text-sm text-gray-200">
+                                    <pre>
+// controllers/example.ts
+export class ExampleController {
+  async getAll(req: Request, res: Response) {
+    const items = await service.getAll();
+    res.json(items);
+  }
+}</pre>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Serviço -->
+                    <div class="border-b pb-6">
+                        <h3 class="text-xl font-medium text-gray-900 mb-2">Serviço</h3>
+                        <p class="text-gray-600 mb-4">Implementa a lógica de negócio</p>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-medium text-gray-700 mb-2">Como usar:</h4>
+                            <div class="bg-gray-800 rounded-lg p-4">
+                                <code class="text-sm text-gray-200">
+                                    <pre>
+// services/example.ts
+export class ExampleService {
+  async getAll() {
+    return await db.find();
+  }
+}</pre>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boas Práticas -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-2xl font-semibold mb-4">Boas Práticas</h2>
+                
+                <ul class="list-disc pl-5 space-y-2 text-gray-600">
+                    <li>Use a estrutura de pastas fornecida para manter a organização</li>
+                    <li>Implemente validação de dados usando Zod</li>
+                    <li>Utilize tipos TypeScript para melhor segurança</li>
+                    <li>Mantenha a lógica de negócio nos serviços</li>
+                    <li>Use middlewares para funcionalidades compartilhadas</li>
+                    <li>Implemente tratamento de erros adequado</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

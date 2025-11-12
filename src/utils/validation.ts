@@ -48,4 +48,46 @@ export function validateDatabase(database?: string): string | undefined {
   } catch (error) {
     throw new Error('Banco de dados não suportado. Use "mongodb", "postgresql" ou "mysql"');
   }
+}
+
+// Auth validation schemas and functions
+export const userFieldSchema = z.object({
+  name: z.string(),
+  type: z.string(),
+  required: z.boolean().optional()
+});
+
+export function validateAuthType(authType: string): 'jwt' | 'session' {
+  const validAuthTypes = ['jwt', 'session'] as const;
+  if (!validAuthTypes.includes(authType as typeof validAuthTypes[number])) {
+    throw new Error('Tipo de autenticação não suportado. Use "jwt" ou "session"');
+  }
+  return authType as 'jwt' | 'session';
+}
+
+export function validateAuthFramework(framework: string): 'express' | 'koa' {
+  const validFrameworks = ['express', 'koa'] as const;
+  if (!validFrameworks.includes(framework as typeof validFrameworks[number])) {
+    throw new Error('Framework não suportado para autenticação. Use "express" ou "koa"');
+  }
+  return framework as 'express' | 'koa';
+}
+
+const authOptionsSchema = z.object({
+  authType: z.enum(['jwt', 'session']),
+  userFields: z.array(userFieldSchema).optional()
+});
+
+export function validateAuthOptions(options: {
+  authType: 'jwt' | 'session';
+  userFields?: z.infer<typeof userFieldSchema>[];
+}): { authType: 'jwt' | 'session'; userFields?: z.infer<typeof userFieldSchema>[] } {
+  try {
+    return authOptionsSchema.parse(options);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw new Error(`Erro de validação: ${error.errors[0].message}`);
+    }
+    throw new Error('Erro ao validar opções de autenticação');
+  }
 } 

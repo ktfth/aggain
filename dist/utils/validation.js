@@ -42,4 +42,39 @@ export function validateDatabase(database) {
         throw new Error('Banco de dados não suportado. Use "mongodb", "postgresql" ou "mysql"');
     }
 }
+// Auth validation schemas and functions
+export const userFieldSchema = z.object({
+    name: z.string(),
+    type: z.string(),
+    required: z.boolean().optional()
+});
+export function validateAuthType(authType) {
+    const validAuthTypes = ['jwt', 'session'];
+    if (!validAuthTypes.includes(authType)) {
+        throw new Error('Tipo de autenticação não suportado. Use "jwt" ou "session"');
+    }
+    return authType;
+}
+export function validateAuthFramework(framework) {
+    const validFrameworks = ['express', 'koa'];
+    if (!validFrameworks.includes(framework)) {
+        throw new Error('Framework não suportado para autenticação. Use "express" ou "koa"');
+    }
+    return framework;
+}
+const authOptionsSchema = z.object({
+    authType: z.enum(['jwt', 'session']),
+    userFields: z.array(userFieldSchema).optional()
+});
+export function validateAuthOptions(options) {
+    try {
+        return authOptionsSchema.parse(options);
+    }
+    catch (error) {
+        if (error instanceof z.ZodError) {
+            throw new Error(`Erro de validação: ${error.errors[0].message}`);
+        }
+        throw new Error('Erro ao validar opções de autenticação');
+    }
+}
 //# sourceMappingURL=validation.js.map
