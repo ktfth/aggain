@@ -877,7 +877,8 @@ function generatePackageJson(options) {
             build: 'tsc',
             test: options.includeTests ? 'jest' : 'echo "No tests configured"',
             lint: 'eslint . --ext .ts',
-            format: 'prettier --write "src/**/*.ts"'
+            format: 'prettier --write "src/**/*.ts"',
+            generate: 'aggain-generate'
         },
         dependencies: {
             express: '^4.18.2',
@@ -909,6 +910,7 @@ function generatePackageJson(options) {
             '@typescript-eslint/parser': '^6.19.0',
             '@typescript-eslint/eslint-plugin': '^6.19.0',
             'prettier': '^3.2.4',
+            'create-aggain': '^3.0.1',
             ...databaseDevDeps,
             ...(options.includeTests ? {
                 jest: '^29.7.0',

@@ -8,13 +8,13 @@ export declare const userFieldSchema: z.ZodObject<{
     type: z.ZodString;
     required: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
-    type: string;
-    name: string;
-    required?: boolean | undefined;
+    type?: string;
+    name?: string;
+    required?: boolean;
 }, {
-    type: string;
-    name: string;
-    required?: boolean | undefined;
+    type?: string;
+    name?: string;
+    required?: boolean;
 }>;
 export declare function validateAuthType(authType: string): 'jwt' | 'session';
 export declare function validateAuthFramework(framework: string): 'express' | 'koa';

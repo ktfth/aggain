@@ -1,4 +1,3 @@
-"use strict";
 function generateLogger() {
     return `import pino from 'pino';
 

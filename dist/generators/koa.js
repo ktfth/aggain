@@ -149,7 +149,8 @@ function generatePackageJson(options) {
             build: 'tsc',
             test: options.includeTests ? 'jest' : 'echo "No tests configured"',
             lint: 'eslint . --ext .ts',
-            format: 'prettier --write "src/**/*.ts"'
+            format: 'prettier --write "src/**/*.ts"',
+            generate: 'aggain-generate'
         },
         dependencies: {
             koa: '^2.15.0',
@@ -171,6 +172,7 @@ function generatePackageJson(options) {
             typescript: '^5.3.3',
             'ts-node': '^10.9.2',
             'ts-node-dev': '^2.0.0',
+            'create-aggain': '^3.0.1',
             ...(options.includeTests ? {
                 jest: '^29.7.0',
                 '@types/jest': '^29.5.11',

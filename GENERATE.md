@@ -35,9 +35,13 @@ npx create-aggain meu-projeto
 cd meu-projeto
 npm install
 
-# Agora você pode usar:
+# Agora você pode usar (escolha uma das opções):
+npm run generate <tipo> <nome>
+# OU
 npx aggain-generate <tipo> <nome>
 ```
+
+**Recomendação:** Use `npm run generate` para facilitar o uso e evitar conflitos de versão.
 
 ---
 
@@ -48,12 +52,12 @@ npx aggain-generate <tipo> <nome>
 Cria um arquivo de rotas com endpoints CRUD básicos.
 
 ```bash
-npx aggain-generate route <nome>
+npm run generate route <nome>
 ```
 
 **Exemplo:**
 ```bash
-npx aggain-generate route product
+npm run generate route product
 ```
 
 **Gera:**
@@ -71,12 +75,12 @@ npx aggain-generate route product
 Cria um controller com métodos CRUD.
 
 ```bash
-npx aggain-generate controller <nome>
+npm run generate controller <nome>
 ```
 
 **Exemplo:**
 ```bash
-npx aggain-generate controller product
+npm run generate controller product
 ```
 
 **Gera:**
@@ -94,12 +98,12 @@ npx aggain-generate controller product
 Cria uma camada de serviço para lógica de negócio.
 
 ```bash
-npx aggain-generate service <nome>
+npm run generate service <nome>
 ```
 
 **Exemplo:**
 ```bash
-npx aggain-generate service product
+npm run generate service product
 ```
 
 **Gera:**
@@ -117,12 +121,12 @@ npx aggain-generate service product
 Cria uma interface TypeScript para o modelo de dados.
 
 ```bash
-npx aggain-generate model <nome>
+npm run generate model <nome>
 ```
 
 **Exemplo:**
 ```bash
-npx aggain-generate model product
+npm run generate model product
 ```
 
 **Gera:**
@@ -140,12 +144,12 @@ npx aggain-generate model product
 Cria um middleware customizado.
 
 ```bash
-npx aggain-generate middleware <nome>
+npm run generate middleware <nome>
 ```
 
 **Exemplo:**
 ```bash
-npx aggain-generate middleware auth
+npm run generate middleware auth
 ```
 
 **Gera:**
@@ -163,12 +167,12 @@ npx aggain-generate middleware auth
 Cria arquivo de testes para um recurso.
 
 ```bash
-npx aggain-generate test <nome>
+npm run generate test <nome>
 ```
 
 **Exemplo:**
 ```bash
-npx aggain-generate test product
+npm run generate test product
 ```
 
 **Gera:**
@@ -186,12 +190,12 @@ npx aggain-generate test product
 Cria todos os arquivos necessários para um recurso CRUD completo.
 
 ```bash
-npx aggain-generate crud <nome>
+npm run generate crud <nome>
 ```
 
 **Exemplo:**
 ```bash
-npx aggain-generate crud product
+npm run generate crud product
 ```
 
 **Gera:**
@@ -211,18 +215,19 @@ Criar recursos para um blog:
 
 ```bash
 cd meu-blog-api
+npm install  # Certifique-se de ter as dependências instaladas
 
 # Criar posts
-npx aggain-generate crud post
+npm run generate crud post
 
 # Criar comentários
-npx aggain-generate crud comment
+npm run generate crud comment
 
 # Criar categorias
-npx aggain-generate crud category
+npm run generate crud category
 
 # Middleware de autenticação
-npx aggain-generate middleware require-auth
+npm run generate middleware require-auth
 ```
 
 ### Exemplo 2: E-commerce API
@@ -231,20 +236,21 @@ Criar recursos para e-commerce:
 
 ```bash
 cd ecommerce-api
+npm install
 
 # Produtos
-npx aggain-generate crud product
+npm run generate crud product
 
 # Carrinho
-npx aggain-generate crud cart
+npm run generate crud cart
 
 # Pedidos
-npx aggain-generate crud order
+npm run generate crud order
 
 # Pagamentos (apenas service e controller)
-npx aggain-generate service payment
-npx aggain-generate controller payment
-npx aggain-generate route payment
+npm run generate service payment
+npm run generate controller payment
+npm run generate route payment
 ```
 
 ### Exemplo 3: Social Network API
@@ -253,19 +259,20 @@ Criar recursos para rede social:
 
 ```bash
 cd social-api
+npm install
 
 # Posts
-npx aggain-generate crud post
+npm run generate crud post
 
 # Comentários
-npx aggain-generate crud comment
+npm run generate crud comment
 
 # Likes (sem service, lógica simples)
-npx aggain-generate route like
-npx aggain-generate controller like
+npm run generate route like
+npm run generate controller like
 
 # Middleware de moderação
-npx aggain-generate middleware content-moderation
+npm run generate middleware content-moderation
 ```
 
 ---
@@ -305,7 +312,7 @@ Para um novo recurso, siga esta ordem:
 
 ```bash
 # 1. Gerar estrutura completa
-npx aggain-generate crud product
+npm run generate crud product
 
 # 2. Customizar model
 # Editar src/models/product.model.ts e adicionar campos
@@ -472,9 +479,11 @@ O comando detecta automaticamente o framework do projeto:
 Você também pode especificar manualmente:
 
 ```bash
-npx aggain-generate route product -f express
-npx aggain-generate route product -f koa
+npm run generate route product -- -f express
+npm run generate route product -- -f koa
 ```
+
+**Nota:** O `--` é necessário para passar argumentos adicionais através do npm run.
 
 ---
 
@@ -482,11 +491,12 @@ npx aggain-generate route product -f koa
 
 ### Erro: "Este comando deve ser executado dentro de um projeto aggain"
 
-**Solução:** Certifique-se de estar no diretório raiz do projeto criado com `create-aggain`.
+**Solução:** Certifique-se de estar no diretório raiz do projeto criado com `create-aggain` e que você executou `npm install`.
 
 ```bash
 cd meu-projeto
-npx aggain-generate crud product
+npm install
+npm run generate crud product
 ```
 
 ### Erro: "Não foi possível detectar o framework"
@@ -494,7 +504,16 @@ npx aggain-generate crud product
 **Solução:** Especifique o framework manualmente:
 
 ```bash
-npx aggain-generate route product -f express
+npm run generate route product -- -f express
+```
+
+### Erro: "Command not found: aggain-generate"
+
+**Solução:** Execute `npm install` para instalar as dependências do projeto, incluindo o `create-aggain`:
+
+```bash
+npm install
+npm run generate crud product
 ```
 
 ### Arquivo já existe
@@ -506,7 +525,7 @@ O comando não sobrescreve arquivos existentes. Se precisar recriar:
 rm src/routes/product.routes.ts
 
 # Execute o comando novamente
-npx aggain-generate route product
+npm run generate route product
 ```
 
 ---
