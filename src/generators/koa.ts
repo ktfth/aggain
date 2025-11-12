@@ -8,8 +8,8 @@ function generateTsConfig(): string {
   return JSON.stringify({
     compilerOptions: {
       target: "ES2022",
-      module: "NodeNext",
-      moduleResolution: "NodeNext",
+      module: "CommonJS",
+      moduleResolution: "Node",
       lib: ["ES2022"],
       outDir: "dist",
       rootDir: "src",
@@ -22,10 +22,6 @@ function generateTsConfig(): string {
       sourceMap: true,
       types: ["node"]
     },
-    "ts-node": {
-      esm: true,
-      experimentalSpecifiers: true
-    },
     include: ["src/**/*"],
     exclude: ["node_modules", "dist", "**/*.test.ts"]
   }, null, 2);
@@ -33,7 +29,7 @@ function generateTsConfig(): string {
 
 function generateErrorMiddleware(): string {
   return `import { Context, Next } from 'koa';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger';
 
 export async function errorHandler(ctx: Context, next: Next) {
   try {
@@ -195,11 +191,10 @@ function generatePackageJson(options: ProjectOptions): object {
     name: options.name,
     version: '1.0.0',
     description: 'BFF gerado com Koa',
-    type: "module",
     main: 'dist/index.js',
     scripts: {
       start: 'node dist/index.js',
-      dev: 'tsx watch src/index.ts',
+      dev: 'ts-node-dev --respawn --transpile-only src/index.ts',
       build: 'tsc',
       test: options.includeTests ? 'jest' : 'echo "No tests configured"',
       lint: 'eslint . --ext .ts',
@@ -223,7 +218,8 @@ function generatePackageJson(options: ProjectOptions): object {
       '@types/koa-bodyparser': '^4.3.12',
       '@types/node': '^20.11.5',
       typescript: '^5.3.3',
-      'tsx': '^4.7.0',
+      'ts-node': '^10.9.2',
+      'ts-node-dev': '^2.0.0',
       ...(options.includeTests ? {
         jest: '^29.7.0',
         '@types/jest': '^29.5.11',
@@ -242,9 +238,9 @@ import cors from '@koa/cors';
 import helmet from 'koa-helmet';
 import compress from 'koa-compress';
 import bodyParser from 'koa-bodyparser';
-import { exampleRouter } from './routes/example.js';
-import { errorHandler } from './middlewares/error.js';
-import { logger } from './utils/logger.js';
+import { exampleRouter } from './routes/example';
+import { errorHandler } from './middlewares/error';
+import { logger } from './utils/logger';
 
 const app = new Koa();
 const router = new Router();
@@ -271,8 +267,8 @@ export default app;`;
 
 function generateExampleRoute(): string {
   return `import Router from '@koa/router';
-import { ExampleController } from '../controllers/example.js';
-import { validateExample } from '../middlewares/validation.js';
+import { ExampleController } from '../controllers/example';
+import { validateExample } from '../middlewares/validation';
 
 const router = new Router();
 const controller = new ExampleController();
@@ -312,7 +308,7 @@ export class ExampleController {
 
 function generateExampleTest(): string {
   return `import request from 'supertest';
-import app from '../src/index.js';
+import app from '../src/index';
 
 describe('Example API', () => {
   const server = app.listen();
