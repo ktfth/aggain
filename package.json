@@ -1,6 +1,6 @@
 {
   "name": "create-aggain",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Um gerador moderno de BFF com suporte para Express e Koa",
   "bin": {
     "create-aggain": "bin/agni",
