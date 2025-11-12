@@ -149,6 +149,75 @@ meu-projeto/
 
 ---
 
+## 🔧 Geração Incremental de Recursos
+
+Após criar seu projeto, você pode gerar recursos adicionais usando o comando `aggain-generate`:
+
+### Comandos Disponíveis
+
+```bash
+# Gerar uma rota
+npx aggain-generate route user
+
+# Gerar um controller
+npx aggain-generate controller product
+
+# Gerar um service
+npx aggain-generate service order
+
+# Gerar um model
+npx aggain-generate model customer
+
+# Gerar um middleware
+npx aggain-generate middleware auth
+
+# Gerar um teste
+npx aggain-generate test user
+
+# Gerar CRUD completo (model + service + controller + route + test)
+npx aggain-generate crud product
+```
+
+### Exemplos Práticos
+
+**1. Criar recurso completo de Produtos:**
+
+```bash
+cd meu-projeto
+npx aggain-generate crud product
+```
+
+Isso criará:
+- `src/models/product.model.ts`
+- `src/services/product.service.ts`
+- `src/controllers/product.controller.ts`
+- `src/routes/product.routes.ts`
+- `tests/product.test.ts`
+
+**2. Adicionar rota customizada:**
+
+```bash
+npx aggain-generate route payment
+npx aggain-generate controller payment
+```
+
+**3. Criar middleware de autenticação:**
+
+```bash
+npx aggain-generate middleware authorization
+```
+
+### Especificar Framework
+
+Por padrão, o comando detecta o framework do projeto automaticamente. Você também pode especificar:
+
+```bash
+npx aggain-generate route user -f express
+npx aggain-generate route user -f koa
+```
+
+---
+
 ## 🛠️ Requisitos
 
 - **Node.js** >= 18.0.0

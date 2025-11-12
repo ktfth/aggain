@@ -1,0 +1,59 @@
+#!/usr/bin/env node
+
+import { dirname, resolve } from 'path';
+import { Command } from 'commander';
+import chalk from 'chalk';
+import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const pkg = require('../package.json');
+
+const program = new Command();
+
+program
+  .version(pkg.version)
+  .description('Gera recursos para um projeto aggain existente')
+  .argument('<type>', 'Tipo do recurso (route|controller|service|model|middleware|test|crud)')
+  .argument('<name>', 'Nome do recurso')
+  .option('-f, --framework <framework>', 'Framework (express|koa)', undefined)
+  .parse(process.argv);
+
+const options = program.opts();
+const [type, name] = program.args;
+
+if (!type || !name) {
+  console.error(chalk.red('❌ Tipo e nome do recurso são obrigatórios'));
+  console.log(chalk.yellow('\nExemplos:'));
+  console.log(chalk.cyan('  aggain-generate route user'));
+  console.log(chalk.cyan('  aggain-generate controller product'));
+  console.log(chalk.cyan('  aggain-generate crud order'));
+  program.help();
+}
+
+const validTypes = ['route', 'controller', 'service', 'model', 'middleware', 'test', 'crud'];
+if (!validTypes.includes(type)) {
+  console.error(chalk.red(`❌ Tipo inválido: ${type}`));
+  console.error(chalk.yellow(`Tipos válidos: ${validTypes.join(', ')}`));
+  process.exit(1);
+}
+
+import('../dist/generate.js')
+  .then(module => {
+    if (type === 'crud') {
+      module.generateCrud(name, options.framework);
+    } else {
+      module.generateResource({
+        type: type,
+        name: name,
+        framework: options.framework
+      });
+    }
+  })
+  .catch(err => {
+    console.error(chalk.red('Erro ao executar o comando:'), err);
+    process.exit(1);
+  });
