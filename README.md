@@ -156,26 +156,36 @@ Após criar seu projeto, você pode gerar recursos adicionais usando o comando `
 ### Comandos Disponíveis
 
 ```bash
+# Após npm install, você pode usar qualquer uma das formas abaixo:
+
+# Usando npm run generate
+npm run generate crud product
+
+# Ou usando npx diretamente
+npx aggain-generate crud product
+
+# Exemplos de outros comandos:
+
 # Gerar uma rota
-npx aggain-generate route user
+npm run generate route user
 
 # Gerar um controller
-npx aggain-generate controller product
+npm run generate controller product
 
 # Gerar um service
-npx aggain-generate service order
+npm run generate service order
 
 # Gerar um model
-npx aggain-generate model customer
+npm run generate model customer
 
 # Gerar um middleware
-npx aggain-generate middleware auth
+npm run generate middleware auth
 
 # Gerar um teste
-npx aggain-generate test user
+npm run generate test user
 
 # Gerar CRUD completo (model + service + controller + route + test)
-npx aggain-generate crud product
+npm run generate crud product
 ```
 
 ### Exemplos Práticos
@@ -184,7 +194,8 @@ npx aggain-generate crud product
 
 ```bash
 cd meu-projeto
-npx aggain-generate crud product
+npm install  # Certifique-se de ter as dependências instaladas
+npm run generate crud product
 ```
 
 Isso criará:
@@ -197,14 +208,14 @@ Isso criará:
 **2. Adicionar rota customizada:**
 
 ```bash
-npx aggain-generate route payment
-npx aggain-generate controller payment
+npm run generate route payment
+npm run generate controller payment
 ```
 
 **3. Criar middleware de autenticação:**
 
 ```bash
-npx aggain-generate middleware authorization
+npm run generate middleware authorization
 ```
 
 ### Especificar Framework
@@ -212,9 +223,11 @@ npx aggain-generate middleware authorization
 Por padrão, o comando detecta o framework do projeto automaticamente. Você também pode especificar:
 
 ```bash
-npx aggain-generate route user -f express
-npx aggain-generate route user -f koa
+npm run generate route user -- -f express
+npm run generate route user -- -f koa
 ```
+
+**Nota:** O `--` é necessário quando você passa argumentos adicionais através de `npm run`.
 
 ---
 
